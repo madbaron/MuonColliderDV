@@ -25,6 +25,22 @@ using namespace marlin;
 class HitSlimmer : public Processor
 {
 
+protected:
+  static const size_t MAX_NHITS = 10000000;
+
+  struct MySensorPos
+  {
+    unsigned int layer;
+    unsigned int side;
+    unsigned int ladder;
+    unsigned int module;
+
+    bool operator<(const MySensorPos &rhs) const
+    {
+      return std::tie(layer, side, ladder, module) < std::tie(rhs.layer, rhs.side, rhs.ladder, rhs.module);
+    }
+  };
+
 public:
   virtual Processor *newProcessor() { return new HitSlimmer; }
 
@@ -58,8 +74,15 @@ protected:
   std::string m_inputTrackCollection = "";
   std::string m_outputHitCollection = "";
 
+  // map hits in the detector by layer
+  std::map<MySensorPos, std::vector<size_t>> m_hitsMap;
+
+  // hit decisions
+  bool m_used[MAX_NHITS];
+
   int _nRun{};
   int _nEvt{};
+
 };
 
 #endif
