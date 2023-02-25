@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<marlin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ilcsoft.desy.de/marlin/marlin.xsd">
+
+  <constants>
+  </constants>
+  
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == List of processors to execute                                                                      == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+  <execute>
+
+    <!-- ==========  Test  ========== -->
+    <processor name="MyVertexFinder"/>
+
+    <!-- ==========  Output  ========== -->
+    <processor name="Output_REC"/>
+
+  </execute>
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == Input configuration                                                                               == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+  <global>
+    <!-- parameter name="LCIOInputFiles">
+      /data/stop4body/ttbar_reco.slcio
+    </parameter -->
+    <parameter name="LCIOInputFiles">
+      /data/stop4body/BGun_reco.slcio
+    </parameter>
+    <!-- Limit the number of processed records (run+evt): -->
+    <parameter name="MaxRecordNumber" value="-1" />
+    <parameter name="SkipNEvents" value="0" />l
+    <parameter name="SupressCheck" value="false" />  
+    <parameter name="Verbosity" options="DEBUG0-9,MESSAGE0-9,WARNING0-9,ERROR0-9,SILENT">MESSAGE </parameter>
+    <parameter name="RandomSeed" value="1234567890" />
+  </global>
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == Hit Selector config                                                                             == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+  <processor name="MyVertexFinder" type="MyVertexFinder">
+  <!--Name of the Track input collection-->
+  <parameter name="TrackCollectionName" type="string" lcioInType="Track">SiTracks_Refitted </parameter>
+  <!--Name of the Primary Vertex output collection-->
+  <parameter name="PVCollectionName" type="string" lcioOutType="Vertex">MyPVCollection </parameter>
+  <!--Name of the Secondary Vertex output collection-->
+  <parameter name="SVCollectionName" type="string" lcioOutType="Vertex">MySVCollection </parameter>
+  <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
+  <parameter name="Verbosity" type="string">DEBUG2 </parameter>
+  </processor>
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == Output configuration                                                                               == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+  <processor name="Output_REC" type="LCIOOutputProcessor">
+    <!--   standard output: full reconstruction keep all collections -->
+    <parameter name="LCIOOutputFile" type="string"> test.slcio </parameter>
+    <parameter name="FullSubsetCollections" type="StringVec"> EfficientMCParticles InefficientMCParticles </parameter>
+    <parameter name="LCIOWriteMode" type="string" value="WRITE_NEW"/>
+    <!-- <parameter name="SplitFileSizekB" type="int">996147 </parameter> -->
+    <parameter name="Verbosity" type="string">DEBUG </parameter>
+    <parameter name="DropCollectionNames" type="StringVec">  </parameter>
+    <parameter name="DropCollectionTypes" type="StringVec">SimCalorimeterHit  </parameter>
+    <parameter name="KeepCollectionNames" type="StringVec">  </parameter>
+  </processor>
+
+</marlin>

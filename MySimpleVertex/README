@@ -1,0 +1,34 @@
+
+
+Quick steps to build the package:
+------------------------------------------
+
+    . /path/to/ilcsoft/installation/v01-XX/init_ilcsoft.sh
+    mkdir build
+    cd build
+    cmake -C $ILCSOFT/ILCSoft.cmake  -DBOOST_INCLUDEDIR=/usr/include/boost173/ -DBOOST_LIBRARYDIR=/usr/lib64/boost173/ ..
+    make install # this should create library: lib/libMySimpleVertex.so
+
+
+
+Quick steps to load package example into Marlin:
+-------------------------------------------------
+
+    export MARLIN_DLL=$MARLIN_DLL:$PWD/libMySimpleVertex.so
+    Marlin -x > mysteer.xml
+    grep package mysteer.xml # should display ... Loading shared library ... (lib/libMySimpleVertex.so)
+
+
+
+Infos and support:
+------------------
+
+iLCSoft general documentation:
+http://ilcsoft.desy.de/portal/general_documentation/index_eng.html
+
+CMake website:
+http://www.cmake.org
+
+The Linear Collider Forum:
+http://forum.linearcollider.org
+
