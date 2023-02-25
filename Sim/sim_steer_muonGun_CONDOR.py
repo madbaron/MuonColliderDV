@@ -17,7 +17,7 @@ SIM.inputFiles = []
 # Macro file to execute for runType 'run' or 'vis'
 SIM.macroFile = []
 # number of events to simulate, used in batch mode
-SIM.numberOfEvents = 100000
+SIM.numberOfEvents = EVENTSTOSIM
 # Outputfile from the simulation,only lcio output is supported
 SIM.outputFile = OUTFILENAME 
 # Verbosity use integers from 1(most) to 7(least) verbose
@@ -36,7 +36,7 @@ SIM.steeringFile = None
 # FourVector of translation for the Smearing of the Vertex position: x y z t
 SIM.vertexOffset = [0.0, 0.0, 0.0, 0.0]
 # FourVector of the Sigma for the Smearing of the Vertex position: x y z t
-SIM.vertexSigma = [200.0, 200.0, 0.0, 0.0]
+SIM.vertexSigma = [0.0, 0.0, 0.0, 0.0]
 
 
 ################################################################################
@@ -140,7 +140,7 @@ SIM.filter.tracker = "edep1kev"
 # Setting a distribution will set isotrop = True
 ##
 SIM.gun.distribution = "uniform"
-SIM.gun.energy = 50.0*GeV
+SIM.gun.energy = 10.0*GeV
 
 # isotropic distribution for the particle gun
 ##

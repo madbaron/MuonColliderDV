@@ -109,40 +109,86 @@ void HitSlimmer::processEvent(LCEvent *evt)
 
     // Add the hits to the output
     int nHits = trackerHitCollection->getNumberOfElements();
+    // Set the map of responses 
+    memset(&m_used, false, nHits);
+
+    // First sort hits in a map
+    m_hitsMap.clear();
+    for (int itHit = 0; itHit < nHits; itHit++)
+    {
+        // Get the hit
+        TrackerHitPlane *hit = static_cast<TrackerHitPlane *>(trackerHitCollection->getElementAt(itHit));
+        
+        unsigned int layer= myCellIDEncoding(hit)["layer"];
+        unsigned int side= myCellIDEncoding(hit)["side"];
+        unsigned int ladder= myCellIDEncoding(hit)["module"];
+        unsigned int module= myCellIDEncoding(hit)["sensor"];
+
+        MySensorPos sensPos = {layer, side, ladder, module};
+        if (m_hitsMap.find(sensPos) == m_hitsMap.end())
+        {
+            m_hitsMap[sensPos] = std::vector<size_t>();
+            m_hitsMap[sensPos].reserve(nHits);
+        }
+        m_hitsMap[sensPos].push_back(itHit);
+
+    }
+
     int nUsedHits = UsedHitsCollection->getNumberOfElements();
 
-    streamlog_out(DEBUG) << "  Total hits: " << nHits
-                         << "  Used hits:  " << nUsedHits << std::endl;
+    streamlog_out(DEBUG4) << "  Total hits: " << nHits
+                          << "  Used hits:  " << nUsedHits << std::endl;
 
+    for (size_t itHit = 0; itHit < nUsedHits; itHit++)
+    {
+        // Get the hit
+        TrackerHitPlane *hit = static_cast<TrackerHitPlane *>(UsedHitsCollection->getElementAt(itHit));
+        unsigned int layer = myCellIDEncoding(hit)["layer"];
+        unsigned int side = myCellIDEncoding(hit)["side"];
+        unsigned int ladder = myCellIDEncoding(hit)["module"];
+        unsigned int module = myCellIDEncoding(hit)["sensor"];
+
+        streamlog_out(DEBUG0) << "Hit position " << layer << " " << ladder << " " << module << std::endl;
+        const MySensorPos theOtherPos = {layer, side, ladder, module};
+
+        // Checking if there are any hits in the other layer
+        if (m_hitsMap.find(theOtherPos) == m_hitsMap.end())
+        {
+            streamlog_out(ERROR) << "No hit found, this should never happen!" << std::endl;
+            continue;
+        }
+
+        for (size_t jitHit : m_hitsMap.at(theOtherPos))
+        {
+            TrackerHitPlane *hit2 = static_cast<TrackerHitPlane *>(trackerHitCollection->getElementAt(jitHit));
+            TVector3 pos2(hit2->getPosition()[0], hit2->getPosition()[1], hit2->getPosition()[2]);
+
+            if ((hit->getU() == hit2->getU()) && (hit->getV() == hit2->getV()))
+            {
+                streamlog_out(DEBUG0) << " --> found hit " << std::endl;
+                m_used[itHit] = true;
+            }
+        }
+    }
+
+    // Once more to add the hits to the output (in slices)
     for (size_t itHit = 0; itHit < nHits; itHit++)
     {
         TrackerHitPlane *hit = static_cast<TrackerHitPlane *>(trackerHitCollection->getElementAt(itHit));
 
-        bool found = false;
-
-        for (size_t itHit2 = 0; itHit2 < nUsedHits; itHit2++)
-        {
-            TrackerHitPlane *hit2 = static_cast<TrackerHitPlane *>(UsedHitsCollection->getElementAt(itHit2));
-            if ((hit->getU() == hit2->getU()) && (hit->getV() == hit2->getV()))
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found)
+        if (!m_used[itHit])
         {
             SlimmedHitsCollection->addElement(hit);
         }
     }
 
-    streamlog_out(DEBUG) << "  Unused hits:  " << SlimmedHitsCollection->getNumberOfElements() << std::endl;
+    streamlog_out(DEBUG4) << "  Unused hits:  " << SlimmedHitsCollection->getNumberOfElements() << std::endl;
 
     // Store the filtered hit collections
     evt->addCollection(SlimmedHitsCollection, m_outputHitCollection);
 
     //-- note: this will not be printed if compiled w/o MARLINDEBUG=1 !
-    streamlog_out(DEBUG) << "   done processing event: " << evt->getEventNumber()
+    streamlog_out(DEBUG4) << "   done processing event: " << evt->getEventNumber()
                          << "   in run:  " << evt->getRunNumber() << std::endl;
 
     _nEvt++;

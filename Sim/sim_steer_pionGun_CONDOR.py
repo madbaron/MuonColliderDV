@@ -17,7 +17,7 @@ SIM.inputFiles = []
 # Macro file to execute for runType 'run' or 'vis'
 SIM.macroFile = []
 # number of events to simulate, used in batch mode
-SIM.numberOfEvents = 10000
+SIM.numberOfEvents = EVENTSTOSIM
 # Outputfile from the simulation,only lcio output is supported
 SIM.outputFile = OUTFILENAME 
 # Verbosity use integers from 1(most) to 7(least) verbose
@@ -36,7 +36,7 @@ SIM.steeringFile = None
 # FourVector of translation for the Smearing of the Vertex position: x y z t
 SIM.vertexOffset = [0.0, 0.0, 0.0, 0.0]
 # FourVector of the Sigma for the Smearing of the Vertex position: x y z t
-SIM.vertexSigma = [10.0, 10.0, 0.0, 0.0]
+SIM.vertexSigma = [0.0, 0.0, 0.0, 0.0]
 
 
 ################################################################################

@@ -22,6 +22,15 @@ href="http://ilcsoft.desy.de/marlin/marlin.xsl"?
     <!-- ==========  Geometry initialization  ========== -->
     <processor name="InitDD4hep"/>
 
+    <!-- ==========  Overlay  ========== -->
+    <if condition="Config.OverlayBIB">
+      <processor name="OverlayBIB"/>
+    </if>
+
+    <if condition="Config.OverlayFalse">
+      <processor name="OverlayFalse"/>
+    </if>
+
     <!-- ==========  Tracker Digitization  ========== -->
     <processor name="VXDBarrelDigitiser"/>
     <processor name="VXDEndcapDigitiser"/>
@@ -83,12 +92,15 @@ href="http://ilcsoft.desy.de/marlin/marlin.xsl"?
 
   <processor name="MyAIDAProcessor" type="AIDAProcessor">
     <parameter name="FileName" type="string">
-      lctuple_TYPEEVENT_actsseededckf_INFILENAME
+      /data/TYPEEVENT/lctuple/lctuple_TYPEEVENT_actsseededckf_INFILENAME
     </parameter>
     <parameter name="FileType" type="string">root</parameter>
   </processor>
 
   <global>
+    <!--
+      /data/TYPEEVENT/sim/TYPEEVENT_sim_INFILENAME.slcio
+    -->
     <parameter name="LCIOInputFiles">
       /data/TYPEEVENT/sim/TYPEEVENT_sim_INFILENAME.slcio
     </parameter>
@@ -134,6 +146,73 @@ href="http://ilcsoft.desy.de/marlin/marlin.xsl"?
     <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
     <!--parameter name="Verbosity" type="string">DEBUG </parameter-->
   </processor>
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == Overlay configuration                                                                              == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+  <group name="Overlay">
+    <parameter name="MCParticleCollectionName" type="string">MCParticle </parameter>
+    <!--The output MC Particle Collection Name for the physics event-->
+    <parameter name="MCPhysicsParticleCollectionName" type="string"> MCPhysicsParticles </parameter>
+    <!--Time difference between bunches in the bunch train in ns-->
+    <parameter name="Delta_t" type="float" value="1"/>
+    <!--Number of bunches in a bunch train-->
+    <parameter name="NBunchtrain" type="int" value="1"/>
+    <!--Whether MCParticle collections should be merged (slow with BIB) -->
+    <parameter name="MergeMCParticles" type="bool" value="false"/>
+    <!--Lower time limit for collections with a single value -->
+    <parameter name="IntegrationTimeMin" type="float" value="-0.36"/>
+
+    <parameter name="Collection_IntegrationTimes" type="StringVec" >
+      VertexBarrelCollection        -0.36 0.48
+      VertexEndcapCollection        -0.36 0.48
+
+      InnerTrackerBarrelCollection  -0.36 0.48
+      InnerTrackerEndcapCollection  -0.36 0.48
+
+      OuterTrackerBarrelCollection  -0.36 0.48
+      OuterTrackerEndcapCollection  -0.36 0.48
+    </parameter>
+    <!--Number of the Bunch crossing of the physics event-->
+    <parameter name="PhysicsBX" type="int" value="1"/>
+    <!--Draw random number of Events to overlay from Poisson distribution with  mean value NumberBackground-->
+    <parameter name="Poisson_random_NOverlay" type="bool" value="false"/>
+    <!--Place the physics event at an random position in the train - overrides PhysicsBX-->
+    <parameter name="RandomBx" type="bool" value="false"/>
+    <!--[mm/ns] (float) - default 5.0e-2 (5cm/us)-->
+    <parameter name="TPCDriftvelocity" type="float" value="0.05"/>
+    <parameter name="BackgroundFileNames" type="StringVec"> </parameter>
+
+    <processor name="OverlayFalse" type="OverlayTimingGeneric">
+      <parameter name="BackgroundFileNames" type="StringVec"> /dev/null</parameter>
+      <parameter name="NBunchtrain" type="int" value="0"/>
+      <parameter name="NumberBackground" type="float" value="0."/>
+    </processor>
+
+    <processor name="OverlayBIB" type="OverlayTimingGeneric">
+      <parameter name="BackgroundFileNames" type="StringVec">
+/data/BIB/sim_mumu-1e3x500-26m-lowth-excl_seed0010_allHits.slcio
+/data/BIB/sim_mumu-1e3x500-26m-lowth-excl_seed0011_allHits.slcio
+/data/BIB/sim_mumu-1e3x500-26m-lowth-excl_seed0012_allHits.slcio
+/data/BIB/sim_mumu-1e3x500-26m-lowth-excl_seed0013_allHits.slcio
+/data/BIB/sim_mumu-1e3x500-26m-lowth-excl_seed0014_allHits.slcio
+/data/BIB/sim_mumu-1e3x500-26m-lowth-excl_seed0015_allHits.slcio
+/data/BIB/sim_mumu-1e3x500-26m-lowth-excl_seed0016_allHits.slcio
+/data/BIB/sim_mumu-1e3x500-26m-lowth-excl_seed0017_allHits.slcio
+/data/BIB/sim_mumu-1e3x500-26m-lowth-excl_seed0018_allHits.slcio
+/data/BIB/sim_mumu-1e3x500-26m-lowth-excl_seed0019_allHits.slcio
+      </parameter>
+      <parameter name="StartBackgroundFileIndex" type="int" value="0"/>
+      <parameter name="AllowReusingBackgroundFiles" type="bool" value="true" />
+      <parameter name="Verbosity" options="DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT">DEBUG0 </parameter>
+      <parameter name="NBunchtrain" type="int" value="1" />
+      <parameter name="NumberBackground" type="float" value="1" />
+    </processor>
+
+  </group>
 
   <!-- ======================================================================================================== -->
   <!-- ======================================================================================================== -->

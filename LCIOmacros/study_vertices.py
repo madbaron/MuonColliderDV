@@ -23,7 +23,7 @@ def isFromSbottom(mcp):
     # Look for sbottom mothers
     origin_PDGid = 0
     momVec = mcp.getParents()
-    while (len(momVec) > 0 and fabs(origin_PDGid) != 1000005):
+    while (len(momVec) > 0 and fabs(origin_PDGid) != 10000023):
         mc_mother = momVec[0]
         origin_PDGid = mc_mother.getPDG()
         momVec = mc_mother.getParents()
@@ -33,12 +33,15 @@ def isFromSbottom(mcp):
 #########################
 
 
-def find_sbottom_decay(list_particles):
+def find_sbottom_decay(mcpCollection):
     result = []
+
+    print(len(mcpCollection))
 
     for mcp in mcpCollection:
         pdg = mcp.getPDG()
-        if pdg == 1000005:
+        print(pdg)
+        if pdg == 10000023:
             daughters = mcp.getDaughters()
             if len(daughters) == 0:
                 print('WARNING: Found sbottom with no daughters')
@@ -47,6 +50,7 @@ def find_sbottom_decay(list_particles):
                 for d in daughters:
                     if d.getPDG() == 1000022:
                         result.append(mcp)
+    print("")
     return result
 
 
@@ -55,7 +59,7 @@ def find_asbottom_decay(list_particles):
 
     for mcp in mcpCollection:
         pdg = mcp.getPDG()
-        if pdg == -1000005:
+        if pdg == -10000023:
             daughters = mcp.getDaughters()
             if len(daughters) == 0:
                 print('WARNING: Found sbottom with no daughters')
@@ -153,6 +157,7 @@ for ievt, event in enumerate(reader):
 
     # get mc particle collection and loop over it
     svCollection = event.getCollection('MySVCollection')
+    print("Found " + str(len(svCollection)) + " secondary vertices")
     for v in svCollection:
         vpos = v.getPosition()
 
@@ -188,18 +193,18 @@ for ievt, event in enumerate(reader):
                 mcp = mc2trelation.getRelatedFromObjects(trk)[0]
                 origin = isFromSbottom(mcp)
 
-                if origin == 1000005:
+                if origin == 10000023:
                     s_sbot = s_sbot+pt
-                if origin == -1000005:
+                if origin == -10000023:
                     s_asbot = s_asbot+pt
 
         min_distance = 999999999.
         s_score = s_sbot/den
-        pdg = 1000005
+        pdg = 10000023
 
         if s_asbot > s_sbot:
             s_score = s_asbot/den
-            pdg = -1000005
+            pdg = -10000023
 
             # check match with sbottom decays
             for sbot in asbottom_decays:
